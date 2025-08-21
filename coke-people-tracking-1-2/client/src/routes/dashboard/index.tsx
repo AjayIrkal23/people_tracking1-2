@@ -1,12 +1,10 @@
 import { useContext } from "react";
 import clsx from "clsx";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import useAuth from "@/hooks/auth/useAuth";
+
 import CellarAreaMap from "./components/CellarAreaMap";
 import TransformControls from "./components/TransformControls";
-import AddGatewayOnMap from "./components/AddGatewayOnMap";
-import AddConnectPointOnMap from "./components/AddConnectPointOnMap";
-import AddBoundingBoxOnMap from "./components/AddBoundingBoxOnMap";
+
 import { useFullscreen } from "./hooks/useFullscreen";
 import useAddGateway from "./hooks/useAddGateway";
 import useAddConnectPoint from "./hooks/useAddConnectPoint";
@@ -19,28 +17,20 @@ import MapContext from "@/context/MapContext";
 import SelectCellar from "./components/SelectCellar";
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
-  const isAdmin = user?.role === "ADMIN";
   const { ref, transformWrapperRef, enterFullscreen } = useFullscreen();
   const { scale, setScale, isFullScreen } = useContext(MapContext);
-  const { addGateway, handleAddGateway, onAddGateway, setAddGateway } =
-    useAddGateway();
-  const {
-    addConnectPoint,
-    handleAddConnectPoint,
-    onAddConnectPoint,
-    setAddConnectPoint,
-  } = useAddConnectPoint();
+  const { addGateway, handleAddGateway } = useAddGateway();
+  const { addConnectPoint, handleAddConnectPoint } = useAddConnectPoint();
   const {
     addBoundingBox,
-    setAddBoundingBox,
-    onAddBoundingBox,
+
     handleAddBoundingBox,
     showBoundingBox,
     toggleShowBoundingBox,
   } = useAddBoundingBox();
-  const { beacons, fetchConnectPoints, fetchGateways } =
-    useContext(DeviceContext);
+  const { beacons, fetchConnectPoints, fetchGateways } = useContext(
+    DeviceContext
+  );
 
   usePolling(fetchConnectPoints, 3000);
   usePolling(fetchGateways, 3000);
@@ -53,25 +43,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      {isAdmin && (
-        <div className="flex gap-2 flex-row-reverse ">
-          <AddBoundingBoxOnMap
-            addBoundingBox={addBoundingBox}
-            setAddBoundingBox={setAddBoundingBox}
-            onAddBoundingBox={onAddBoundingBox}
-          />
-          <AddConnectPointOnMap
-            addConnectPoint={addConnectPoint}
-            onAddConnectPoint={onAddConnectPoint}
-            setAddConnectPoint={setAddConnectPoint}
-          />
-          <AddGatewayOnMap
-            addGateway={addGateway}
-            onAddGateway={onAddGateway}
-            setAddGateway={setAddGateway}
-          />
-        </div>
-      )}
       <div
         ref={ref}
         className={clsx("w-full h-full shadow-custom", {
