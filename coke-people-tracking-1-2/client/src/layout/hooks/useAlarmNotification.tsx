@@ -2,10 +2,11 @@ import useAxiosPrivate from "@/hooks/auth/useAxiosPrivate";
 import { handleApiError } from "@/helpers/handleApiError";
 import { useState, useEffect, useRef } from "react";
 import alarmAudio from "/alarm.mp3";
+import { Beacon } from "@/interfaces/device";
 
 interface Notification {
   id: number;
-  message: string;
+  beacon: Beacon;
   status: string;
 }
 
@@ -36,8 +37,11 @@ export const useAlarmNotifications = () => {
     }
   }, [notifications]);
 
-  const addNotification = (id: number, message: string, status: string) => {
-    setNotifications((prev) => [...prev, { id, message, status }]);
+  const addNotification = (beacon: Beacon) => {
+    setNotifications((prev) => [
+      ...prev,
+      { id: beacon.bnid, beacon, status: beacon.status },
+    ]);
   };
 
   const removeNotification = async (id: number) => {

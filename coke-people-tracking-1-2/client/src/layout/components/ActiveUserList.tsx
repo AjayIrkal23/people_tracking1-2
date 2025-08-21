@@ -1,7 +1,6 @@
 import BeaconBatteryTag from "@/components/BeaconBatteryTag";
 import { getMinutesDifference } from "@/helpers/getMinutesDifference";
 import { BEACON_DISPLAY_MINUTES } from "@/constants";
-import { BeaconLocation } from "@/interfaces/device";
 import DeviceContext from "@/context/DeviceContext";
 import { Beacon } from "@/interfaces/device";
 import { CSSProperties, useContext } from "react";
@@ -15,7 +14,7 @@ interface ActiveUserListProps {
 
 const ActiveUserList: React.FC<ActiveUserListProps> = ({ beacons }) => {
   const { beaconStyles } = useContext(DeviceContext);
-  const { isFullScreen, location } = useContext(MapContext);
+  const { isFullScreen } = useContext(MapContext);
 
   const normalScreenStyles: CSSProperties = {
     display: "flex",
@@ -49,9 +48,7 @@ const ActiveUserList: React.FC<ActiveUserListProps> = ({ beacons }) => {
             const lastActive = getMinutesDifference(beacon.lastActive);
             const beaconIsActive = lastActive < BEACON_DISPLAY_MINUTES;
             const hasCpid = beacon.latestCpid; // to make sure it's not null
-            const inCellarArea =
-              beacon.location === (location as unknown as BeaconLocation);
-            return beaconIsActive && hasCpid && inCellarArea;
+            return beaconIsActive && hasCpid;
           })
           .map((beacon) => {
             const beaconStyle = beaconStyles.current[beacon.bnid];
