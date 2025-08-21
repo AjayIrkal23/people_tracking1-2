@@ -10,6 +10,7 @@ import { handleApiError } from "@/helpers/handleApiError";
 const schema = yup
   .object({
     bnid: yup.string().required("Please Enter Beacon ID"),
+    employeeName: yup.string().optional(),
   })
   .required();
 
@@ -46,8 +47,15 @@ const RegisterBeacon: React.FC<RegisterBeaconProps> = ({ fetchBeacons }) => {
     setConfirmLoading(true);
 
     try {
-      const payload = { ...data, bnid: Number(data.bnid) };
-      await axiosPrivate.post("/beacon/register", payload);
+      const bnid = Number(data.bnid);
+      await axiosPrivate.post("/beacon/register", { bnid });
+
+      const employeeName = data.employeeName?.trim() || "Default User";
+      await axiosPrivate.patch("/beacon/assignEmployee", {
+        bnid,
+        employeeName,
+      });
+
       fetchBeacons();
       setOpen(false);
       reset();
@@ -91,6 +99,17 @@ const RegisterBeacon: React.FC<RegisterBeaconProps> = ({ fetchBeacons }) => {
           {errors.bnid && (
             <span className="text-red-500">{errors.bnid.message}</span>
           )}
+          <Controller
+            name="employeeName"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                size="large"
+                placeholder="Employee Name (optional)"
+              />
+            )}
+          />
         </form>
       </Modal>
     </>
