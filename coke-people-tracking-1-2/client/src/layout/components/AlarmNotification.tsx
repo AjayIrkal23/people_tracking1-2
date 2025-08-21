@@ -1,15 +1,13 @@
-import React, { useContext, useEffect } from "react";
-import { Beacon, BeaconLocation } from "@/interfaces/device";
+import React, { useEffect } from "react";
+import { Beacon } from "@/interfaces/device";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { useAlarmNotifications } from "../hooks/useAlarmNotification";
-import MapContext from "@/context/MapContext";
 
 interface AlarmNotificationProps {
   beacons: Beacon[];
 }
 
 const AlarmNotification: React.FC<AlarmNotificationProps> = ({ beacons }) => {
-  const { location } = useContext(MapContext);
   const { notifications, addNotification, removeNotification } =
     useAlarmNotifications();
 
@@ -17,14 +15,9 @@ const AlarmNotification: React.FC<AlarmNotificationProps> = ({ beacons }) => {
     beacons.forEach((beacon) => {
       if (
         (beacon.status === "SOS" || beacon.status === "IDLE") &&
-        beacon.location === (location as unknown as BeaconLocation) &&
         !notifications.some((n) => n.id === beacon.bnid)
       ) {
-        addNotification(
-          beacon.bnid,
-          `${beacon.assignedEmployee} (BNID: ${beacon.bnid}) has triggered an ${beacon.status} alert.`,
-          beacon.status
-        );
+        addNotification(beacon);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -59,11 +52,15 @@ const AlarmNotification: React.FC<AlarmNotificationProps> = ({ beacons }) => {
                     {notification.status === "SOS" ? "SOS Alert" : "Idle Alert"}
                   </h4>
                 </div>
-                <p
-                  className={`${notificationTextColor} text-sm mt-2 leading-relaxed`}
+                <div
+                  className={`${notificationTextColor} text-sm mt-2 leading-relaxed space-y-1`}
                 >
-                  {notification.message}
-                </p>
+                  <p>BNID: {notification.beacon.bnid}</p>
+                  <p>Battery: {notification.beacon.battery}</p>
+                  <p>Location: {notification.beacon.location}</p>
+                  <p>Name: {notification.beacon.assignedEmployee}</p>
+                  <p>Cellar Number: {notification.beacon.latestCpid}</p>
+                </div>
                 <div className="mt-4 flex flex-row-reverse">
                   <button
                     className={`${buttonBgColor} text-white font-semibold px-4 py-2 rounded-md ${buttonHoverColor} transition-all`}

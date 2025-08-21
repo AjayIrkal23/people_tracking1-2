@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import useAuth from "@/hooks/auth/useAuth";
 import NavbarOptions from "@/layout/components/NavbarOptions";
 import jsw_logo from "/jsw_logo.png";
@@ -18,6 +18,7 @@ import { usePolling } from "@/hooks/usePolling";
 import { useContext } from "react";
 import DeviceContext from "@/context/DeviceContext";
 import AlarmNotification from "./components/AlarmNotification";
+import GatewayInactiveNotification from "./components/GatewayInactiveNotification";
 import DCSPopup from "./components/DCSPopup";
 import { Beacon, BeaconLocation } from "@/interfaces/device";
 import useAxiosPrivate from "@/hooks/auth/useAxiosPrivate";
@@ -75,14 +76,23 @@ const LayoutComponent = ({ children }: LayoutProps): JSX.Element => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-  const { beacons, fetchBeacons } = useContext(DeviceContext);
-  const { isFullScreen } = useContext(MapContext);
+  const { beacons, fetchBeacons, gateways, fetchGateways } =
+    useContext(DeviceContext);
+  const { isFullScreen, location } = useContext(MapContext);
   const [dcsPopup, setDcsPopup] = useState<DCSPopupState>({
     open: false,
     beacon: null,
   });
-  const { location } = useContext(MapContext);
   const axiosPrivate = useAxiosPrivate();
+
+  const notificationBeacons = useMemo(
+    () =>
+      beacons.filter(
+        (b) =>
+          b.status === "SOS" || (b.status === "IDLE" && b.location === location)
+      ),
+    [beacons, location]
+  );
 
   const showModal = (beacon: Beacon) => {
     setDcsPopup({ open: true, beacon });
@@ -112,6 +122,7 @@ const LayoutComponent = ({ children }: LayoutProps): JSX.Element => {
   }, [beacons]);
 
   usePolling(fetchBeacons, 300);
+  usePolling(fetchGateways, 60000);
 
   return (
     <Layout className="h-screen">
@@ -149,7 +160,8 @@ const LayoutComponent = ({ children }: LayoutProps): JSX.Element => {
         </Header>
         <Content className="m-4 overflow-auto flex-1">{children}</Content>
       </Layout>
-      {!isFullScreen && <AlarmNotification beacons={beacons} />}
+      {!isFullScreen && <AlarmNotification beacons={notificationBeacons} />}
+      <GatewayInactiveNotification gateways={gateways} />
       <DCSPopup dcsPopup={dcsPopup} handleOk={handleOk} />
       {!isFullScreen && <EartkeyLogo />}
     </Layout>

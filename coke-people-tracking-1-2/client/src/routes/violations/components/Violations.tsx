@@ -5,7 +5,7 @@ import { formattedDate } from "@/helpers/formattedDate";
 import useViolation from "../hooks/useViolation";
 import { Radio } from "antd";
 import type { RadioChangeEvent } from "antd";
-import { Shift } from "@/interfaces/violation";
+import { Shift, ViolationType } from "@/interfaces/violation";
 
 import { Dayjs } from "dayjs";
 
@@ -44,6 +44,11 @@ const columns: TableProps<DataType>["columns"] = [
     dataIndex: "violationType",
     key: "violationType",
     align: "center",
+    filters: [
+      { text: ViolationType.SOS, value: ViolationType.SOS },
+      { text: ViolationType.IDLE, value: ViolationType.IDLE },
+    ],
+    onFilter: (value, record) => record.violationType === value,
   },
   {
     title: "Timestamp",
