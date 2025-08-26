@@ -86,12 +86,8 @@ const LayoutComponent = ({ children }: LayoutProps): JSX.Element => {
   const axiosPrivate = useAxiosPrivate();
 
   const notificationBeacons = useMemo(
-    () =>
-      beacons.filter(
-        (b) =>
-          b.status === "SOS" || (b.status === "IDLE" && b.location === location)
-      ),
-    [beacons, location]
+    () => beacons.filter((b) => b.status === "SOS" || b.status === "IDLE"),
+    [beacons]
   );
 
   const showModal = (beacon: Beacon) => {
