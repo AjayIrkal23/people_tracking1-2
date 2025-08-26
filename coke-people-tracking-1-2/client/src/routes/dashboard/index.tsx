@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import clsx from "clsx";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
@@ -15,6 +15,8 @@ import { usePolling } from "@/hooks/usePolling";
 import ActiveUserList from "@/layout/components/ActiveUserList";
 import MapContext from "@/context/MapContext";
 import SelectCellar from "./components/SelectCellar";
+import BeaconPathTracker from "./components/BeaconPathTracker";
+import { BeaconPath } from "@/interfaces/device";
 
 const Dashboard: React.FC = () => {
   const { ref, transformWrapperRef, enterFullscreen } = useFullscreen();
@@ -28,9 +30,8 @@ const Dashboard: React.FC = () => {
     showBoundingBox,
     toggleShowBoundingBox,
   } = useAddBoundingBox();
-  const { beacons, fetchConnectPoints, fetchGateways } = useContext(
-    DeviceContext
-  );
+  const { beacons, fetchConnectPoints, fetchGateways } = useContext(DeviceContext);
+  const [path, setPath] = useState<BeaconPath[]>([]);
 
   usePolling(fetchConnectPoints, 3000);
   usePolling(fetchGateways, 3000);
@@ -69,6 +70,7 @@ const Dashboard: React.FC = () => {
               {isFullScreen && <AlarmNotification beacons={beacons} />}
               {isFullScreen && <ActiveUserList beacons={beacons} />}
               <SelectCellar />
+              <BeaconPathTracker onPathFetched={setPath} />
 
               <TransformComponent
                 wrapperStyle={{
@@ -81,6 +83,7 @@ const Dashboard: React.FC = () => {
                 <CellarAreaMap
                   addBoundingBox={addBoundingBox}
                   showBoundingBox={showBoundingBox}
+                  path={path}
                 />
               </TransformComponent>
             </div>

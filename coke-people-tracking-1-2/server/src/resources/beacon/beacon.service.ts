@@ -2,7 +2,13 @@ import BeaconModel from "./beacon.model";
 import ConnectPointModel from "../connectPoint/connectPoint.model";
 import GatewayModel from "../gateway/gateway.model";
 import AssignmentHistoryModel from "./assignment.model";
-import { BeaconLocation, BeaconStatus, IBeacon } from "./beacon.interface";
+import {
+  BeaconLocation,
+  BeaconStatus,
+  IBeacon,
+  IBeaconTrack,
+} from "./beacon.interface";
+import BeaconTrackModel from "./beaconTrack.model";
 import { BadRequestsException } from "@/utils/exceptions/bad-request.exception";
 import { NotFoundException } from "@/utils/exceptions/not-found.exception";
 import { ErrorCode } from "@/utils/exceptions/root";
@@ -16,6 +22,7 @@ class BeaconService {
   private connectPoint = ConnectPointModel;
   private gateway = GatewayModel;
   private assignmentHistory = AssignmentHistoryModel;
+  private beaconTrack = BeaconTrackModel;
   private ViolationService = new ViolationService();
   private ConnectPointService = new ConnectPointService();
   private LogsService = new LogsService();
@@ -196,6 +203,13 @@ class BeaconService {
       },
       { select: "-createdAt -updatedAt -__v", new: true }
     );
+    await this.beaconTrack.create({
+      bnid,
+      latestCpid,
+      latestGwid,
+      latestBoundingBox: connectPoint.boundingBoxOnMap,
+      location,
+    });
 
     return updatedBeacon;
     // } else {
@@ -344,38 +358,29 @@ class BeaconService {
       throw new NotFoundException("Beacon not found", ErrorCode.USER_NOT_FOUND);
     }
 
-    let updatedBeacon;
+    const updateQuery: Partial<IBeacon> = {
+      status: BeaconStatus.OK,
+    };
 
-    if (
-      beacon.status !== BeaconStatus.OK &&
-      beacon.location !== BeaconLocation.dcsRoom
-    ) {
-      updatedBeacon = await this.beacon.findOneAndUpdate(
-        { bnid },
-        {
-          status: BeaconStatus.OK,
-        },
-        {
-          select: "-createdAt -updatedAt -__v",
-          new: true,
-        }
-      );
-    } else {
-      updatedBeacon = await this.beacon.findOneAndUpdate(
-        { bnid },
-        {
-          status: BeaconStatus.OK,
-          location: BeaconLocation.battery1,
-          latestCpid: null,
-          latestBoundingBox: null,
-          latestGwid: null,
-        },
-        {
-          select: "-createdAt -updatedAt -__v",
-          new: true,
-        }
-      );
+    // Only reset location and tracking fields when the beacon is in the DCS room.
+    // Previously this code also cleared these fields when the beacon status was
+    // already OK, which caused the client to lose the beacon's coordinates and
+    // temporarily remove it from the map until a new heartbeat was received.
+    if (beacon.location === BeaconLocation.dcsRoom) {
+      updateQuery.location = BeaconLocation.battery1;
+      updateQuery.latestCpid = null;
+      updateQuery.latestBoundingBox = null;
+      updateQuery.latestGwid = null;
     }
+
+    const updatedBeacon = await this.beacon.findOneAndUpdate(
+      { bnid },
+      updateQuery,
+      {
+        select: "-createdAt -updatedAt -__v",
+        new: true,
+      }
+    );
 
     return updatedBeacon;
   };
@@ -385,6 +390,30 @@ class BeaconService {
       .find({}, "-createdAt -updatedAt")
       .sort({ assignedAt: -1 });
     return beacons;
+  };
+
+  public getBeaconPath = async (
+    bnid: number,
+    date: string,
+    location: BeaconLocation
+  ): Promise<IBeaconTrack[]> => {
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    const path = await this.beaconTrack
+      .find(
+        {
+          bnid,
+          location,
+          createdAt: { $gte: start, $lte: end },
+        },
+        "-__v"
+      )
+      .sort({ createdAt: 1 });
+
+    return path;
   };
 }
 
