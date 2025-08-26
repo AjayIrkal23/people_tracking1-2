@@ -29,16 +29,7 @@ interface ConnectPointIndicatorProps {
 }
 
 const ConnectPointIndicator: React.FC<ConnectPointIndicatorProps> = React.memo(
-  ({
-    cpid,
-    x,
-    y,
-    size,
-    range,
-    fetchConnectPoints,
-    scale,
-    lastActiveMinutesAgo,
-  }) => {
+  ({ cpid, x, y, size, fetchConnectPoints, scale, lastActiveMinutesAgo }) => {
     const axiosPrivate = useAxiosPrivate();
     const { user } = useAuth();
     const isAdmin = user?.role === "ADMIN";
@@ -52,8 +43,6 @@ const ConnectPointIndicator: React.FC<ConnectPointIndicatorProps> = React.memo(
         handleApiError(error);
       }
     };
-
-    const isRangeBelow = cpid >= 101 && cpid <= 116;
 
     return (
       <span
