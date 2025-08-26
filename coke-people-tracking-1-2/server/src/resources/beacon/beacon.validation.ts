@@ -58,3 +58,11 @@ export const UpdateBeaconSchema = z.object({
     })
     .optional(),
 });
+
+export const GetBeaconPathSchema = z.object({
+  bnid: z.coerce.number().min(1).max(50),
+  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Invalid date format",
+  }),
+  battery: z.nativeEnum(Battery),
+});

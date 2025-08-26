@@ -8,10 +8,12 @@ import {
   ClearEmployeeSchema,
   UpdateBeaconSchema,
   GetBeaconsSchema,
+  GetBeaconPathSchema,
 } from "./beacon.validation";
 import { errorHandler } from "@/utils/error-handler";
 import BeaconService from "./beacon.service";
 import { BeaconLocation, BeaconStatus } from "./beacon.interface";
+import { Battery } from "@/utils/interfaces/common";
 
 class BeaconController implements Controller {
   public path = "/beacon";
@@ -32,6 +34,11 @@ class BeaconController implements Controller {
       `${this.path}/`,
       validateSchema({ query: GetBeaconsSchema }),
       errorHandler(this.getBeacons)
+    );
+    this.router.get(
+      `${this.path}/path`,
+      validateSchema({ query: GetBeaconPathSchema }),
+      errorHandler(this.getBeaconPath)
     );
     this.router.delete(
       `${this.path}/delete/:bnid`,
@@ -159,6 +166,21 @@ class BeaconController implements Controller {
   ): Promise<Response | void> => {
     const history = await this.BeaconService.getAssignmentHistory();
     res.json(history);
+  };
+
+  private getBeaconPath = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response | void> => {
+    const { bnid, date, battery } = req.query;
+    const location = (battery as Battery) as unknown as BeaconLocation;
+    const path = await this.BeaconService.getBeaconPath(
+      Number(bnid),
+      date as string,
+      location
+    );
+    res.json(path);
   };
 }
 

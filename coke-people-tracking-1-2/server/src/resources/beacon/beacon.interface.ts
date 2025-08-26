@@ -28,3 +28,12 @@ export interface IAssignmentHistory {
   employee: string;
   assignedAt: Date;
 }
+
+export interface IBeaconTrack {
+  bnid: number;
+  latestCpid: number;
+  latestGwid: number;
+  latestBoundingBox: number[];
+  location: BeaconLocation;
+  createdAt: Date;
+}

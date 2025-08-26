@@ -91,3 +91,12 @@ export interface AssignmentHistory {
   employee: string;
   assignedAt: string;
 }
+
+export interface BeaconPath {
+  bnid: number;
+  latestCpid: number;
+  latestGwid: number;
+  latestBoundingBox: number[];
+  location: Battery;
+  createdAt: string;
+}
