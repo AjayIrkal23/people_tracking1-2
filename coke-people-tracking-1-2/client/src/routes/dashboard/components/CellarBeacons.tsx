@@ -107,7 +107,7 @@ const CellarBeacons: React.FC<CellarBeaconsProps> = ({ beacons }) => {
         const beaconIsActive = lastActive < BEACON_DISPLAY_MINUTES;
         const hasCpid = beacon.latestCpid; // to make sure it's not null
         const inCellarArea =
-          beacon.location === (location as unknown as BeaconLocation);
+          beacon.location === ((location as unknown) as BeaconLocation);
         return beaconIsActive && hasCpid && inCellarArea;
       })
       .map((beacon) => {

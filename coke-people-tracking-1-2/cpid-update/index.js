@@ -34,7 +34,7 @@ async function sendBeaconUpdate(gwid, cpid) {
     const params = {
       GWID: gwid,
       CPID: cpid,
-      BNID: 0,
+      BNID: 5,
       SOS: "L",
       IDLE: "L",
       BATTERY: 0,

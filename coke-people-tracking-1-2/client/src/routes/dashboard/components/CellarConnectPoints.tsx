@@ -76,19 +76,6 @@ const ConnectPointIndicator: React.FC<ConnectPointIndicatorProps> = React.memo(
         >
           {cpid}
         </span>
-        <span
-          style={{
-            position: "absolute",
-            top: isRangeBelow ? "110%" : "-1.5em",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: `${size * 1}px`,
-            whiteSpace: "nowrap",
-            color: "black",
-          }}
-        >
-          {range}
-        </span>
       </span>
     );
   }

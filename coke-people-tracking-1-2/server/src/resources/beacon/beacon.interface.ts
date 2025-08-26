@@ -12,9 +12,9 @@ export enum BeaconLocation {
 
 export interface IBeacon {
   bnid: number;
-  latestCpid: number;
-  latestGwid: number;
-  latestBoundingBox: number[];
+  latestCpid: number | null;
+  latestGwid: number | null;
+  latestBoundingBox: number[] | null;
   status: BeaconStatus;
   location: BeaconLocation;
   assignedEmployee: string;
