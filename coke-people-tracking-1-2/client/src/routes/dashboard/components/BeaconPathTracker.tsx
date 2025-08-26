@@ -9,9 +9,15 @@ import { BeaconPath } from "@/interfaces/device";
 
 interface BeaconPathTrackerProps {
   onPathFetched: (path: BeaconPath[]) => void;
+  onClearPath: () => void;
+  tracking: boolean;
 }
 
-const BeaconPathTracker: React.FC<BeaconPathTrackerProps> = ({ onPathFetched }) => {
+const BeaconPathTracker: React.FC<BeaconPathTrackerProps> = ({
+  onPathFetched,
+  onClearPath,
+  tracking,
+}) => {
   const { beacons } = useContext(DeviceContext);
   const { setLocation } = useContext(MapContext);
   const { fetchPath, loading } = useBeaconPath();
@@ -28,6 +34,18 @@ const BeaconPathTracker: React.FC<BeaconPathTrackerProps> = ({ onPathFetched }) 
     setLocation(battery);
     setOpen(false);
   };
+
+  if (tracking)
+    return (
+      <Button
+        className="absolute top-2 right-48 z-50"
+        type="primary"
+        danger
+        onClick={onClearPath}
+      >
+        Clear Path
+      </Button>
+    );
 
   return (
     <>
