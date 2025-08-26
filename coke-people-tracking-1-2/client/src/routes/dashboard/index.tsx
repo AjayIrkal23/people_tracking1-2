@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import clsx from "clsx";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
@@ -20,7 +20,7 @@ import { BeaconPath } from "@/interfaces/device";
 
 const Dashboard: React.FC = () => {
   const { ref, transformWrapperRef, enterFullscreen } = useFullscreen();
-  const { scale, setScale, isFullScreen } = useContext(MapContext);
+  const { scale, setScale, isFullScreen, location } = useContext(MapContext);
   const { addGateway, handleAddGateway } = useAddGateway();
   const { addConnectPoint, handleAddConnectPoint } = useAddConnectPoint();
   const {
@@ -35,6 +35,10 @@ const Dashboard: React.FC = () => {
 
   usePolling(fetchConnectPoints, 3000);
   usePolling(fetchGateways, 3000);
+
+  useEffect(() => {
+    setPath([]);
+  }, [location]);
 
   const handleMapClick = (event: React.MouseEvent) => {
     if (addGateway.active) handleAddGateway(event);
@@ -70,7 +74,11 @@ const Dashboard: React.FC = () => {
               {isFullScreen && <AlarmNotification beacons={beacons} />}
               {isFullScreen && <ActiveUserList beacons={beacons} />}
               <SelectCellar />
-              <BeaconPathTracker onPathFetched={setPath} />
+              <BeaconPathTracker
+                onPathFetched={setPath}
+                onClearPath={() => setPath([])}
+                tracking={path.length > 0}
+              />
 
               <TransformComponent
                 wrapperStyle={{
