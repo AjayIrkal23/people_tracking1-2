@@ -8,8 +8,8 @@ export enum BeaconStatus {
 
 export enum BeaconLocation {
   dcsRoom = "DCS",
-  battery5 = "battery 5",
-  battery6 = "battery 6",
+  battery5 = "battery 1",
+  battery6 = "battery 2",
 }
 
 export interface Beacon {
